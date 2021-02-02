@@ -34,7 +34,7 @@ func GetPlayer(c *gin.Context) {
 		Key: aws.String(string(data)),
 	})
 
-	url, _ := req.Presign(5 * time.Minute)
+	url, _ := req.Presign(12 * time.Hour)
 
 	c.HTML(http.StatusOK, "play/index.html", gin.H{
 		"Name": string(data),
