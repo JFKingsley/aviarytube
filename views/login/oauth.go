@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type User struct {
@@ -66,7 +67,7 @@ func OAuthRedirect(c *gin.Context) {
 		return
 	}
 
-	if !configuration.AuthorizedUsers[u.Email] {
+	if !configuration.AuthorizedUsers[strings.ToLower(u.Email)] {
 		session.AddFlash("This user is not whitelisted.")
 		session.Save()
 		c.Redirect(http.StatusTemporaryRedirect, "/login")

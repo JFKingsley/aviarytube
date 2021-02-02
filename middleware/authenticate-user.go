@@ -4,6 +4,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"fmt"
 )
 
 func AuthenticateUserTokens(errorFunction func(c *gin.Context)) gin.HandlerFunc {
@@ -16,6 +17,8 @@ func AuthenticateUserTokens(errorFunction func(c *gin.Context)) gin.HandlerFunc 
 			c.Redirect(http.StatusTemporaryRedirect, "/login")
 			c.Abort()
 		}
+
+		fmt.Println(v.(string) + " accessed route!")
 		c.Next()
 	}
 }
