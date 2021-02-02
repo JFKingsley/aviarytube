@@ -1,0 +1,20 @@
+{{define "title"}}Browse{{end}}
+
+{{define "content"}}
+<div class="w-screen h-screen bg-gray-50 flex items-center justify-center">
+    <div class="absolute left-5 top-5 flex flex-col">
+        <h2 class="text-4xl font-bold"><span class="text-red-500">Aviary</span><span class="text-gray-600">Tube</span> | Browse</h2>
+        <a class="text-2xl font-bold text-blue-500 pt-2" href="/login/invalidate" >Log out</a>
+    </div>
+    <div class="flex flex-wrap w-2/3 space-y-4 content-between justify-center">
+        {{ range .Data }}
+        <div class="bg-white rounded shadow border p-6 w-96 mr-4">
+            <h5 class="text-3xl font-bold mb-4 mt-0">{{ .Name }} </h5>
+            {{ range .Items }}
+            <a href="/play/{{ .Key }}" class="text-gray-700 text-2xl text-blue-500">{{ .Name }}</a>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{end}}

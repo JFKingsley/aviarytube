@@ -1,0 +1,35 @@
+{
+  "name": "aviarytube",
+  "version": "1.0.0",
+  "description": "A simple S3-backed video serving platform",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JFKingsley/aviarytube.git"
+  },
+  "author": "Jon Kingsley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JFKingsley/aviarytube/issues"
+  },
+  "homepage": "https://github.com/JFKingsley/aviarytube#readme",
+  "devDependencies": {
+    "browser-sync": "^2.26.14",
+    "gulp": "^4.0.2",
+    "gulp-bro": "^2.0.0",
+    "gulp-concat-css": "^3.1.0",
+    "gulp-postcss": "^9.0.0",
+    "gulp-sass": "^4.1.0",
+    "postcss-cssnext": "^3.1.0",
+    "postcss-import": "^14.0.0"
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "^0.2.1",
+    "autoprefixer": "^10.2.4",
+    "postcss": "^8.2.4",
+    "tailwindcss": "^2.0.2"
+  }
+}
