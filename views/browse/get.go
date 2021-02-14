@@ -21,7 +21,9 @@ type Item struct {
 type Folder struct {
 	Name string
 	Date time.Time
-	Items []Item
+	Key string
+	HasFull bool
+	HasAlternate bool
 }
 
 func GetBrowse(c *gin.Context) {
@@ -33,36 +35,52 @@ func GetBrowse(c *gin.Context) {
 
 	resp, _ := svc.ListObjects(params)
 
-	data := map[string][]Item{}
+	folders := map[string]*Folder{}
 
 	for _, key := range resp.Contents {
 		keyData := *key.Key
-		if strings.Contains(keyData, "/") {
+
+		folder := ""
+		file := ""
+
+		if strings.HasSuffix(keyData, "/") {
+			folder = keyData[:len(keyData) - 1]
+		} else {
 			splitKey := strings.Split(keyData, "/")
-			if data[splitKey[0]] == nil {
-				data[splitKey[0]] = []Item{{splitKey[1], base64.StdEncoding.EncodeToString([]byte(keyData))}}
-			} else {
-				data[splitKey[0]] = append(data[splitKey[0]], Item{splitKey[1], base64.StdEncoding.EncodeToString([]byte(keyData))})
+			folder = splitKey[0]
+			file = splitKey[1]
+		}
+
+
+		if folders[folder] == nil {
+			t, _ := time.Parse("02 January 2006", folder)
+			folders[folder] = &Folder{
+				Name: folder,
+				Key: base64.StdEncoding.EncodeToString([]byte(folder)),
+				Date: t,
 			}
+		}
+
+		if file == "recording.mp4" {
+			folders[folder].HasFull = true
+		}
+
+		if file == "recording-720.mp4" {
+			folders[folder].HasAlternate = true
 		}
 	}
 
-	folders := make([]Folder, 0)
+	folderList := make([]Folder, 0)
 
-	for key, value := range data {
-		t, _ := time.Parse("02 January 2006", key)
-		folders = append(folders, Folder{
-			Name: key,
-			Date: t,
-			Items: value,
-		})
+	for _, folder := range folders {
+		folderList = append(folderList, *folder)
 	}
 
-	sort.Slice(folders, func(i, j int) bool {
-		return folders[i].Date.Before(folders[j].Date)
+	sort.Slice(folderList, func(i, j int) bool {
+		return folderList[i].Date.Before(folderList[j].Date)
 	})
 
 	c.HTML(http.StatusOK, "browse/index.html", gin.H{
-		"Data": folders,
+		"Data": folderList,
 	})
 }

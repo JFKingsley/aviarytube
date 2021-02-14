@@ -12,13 +12,7 @@ import (
 	"time"
 )
 
-type PlayerData struct {
-	FullURL string
-	AlternateURL string
-	DownloadURL string
-}
-
-func GetPlayer(c *gin.Context) {
+func GetDownload(c *gin.Context) {
 	data, err := base64.StdEncoding.DecodeString(c.Param("key"))
 	if err != nil {
 		log.Fatal("error:", err)
@@ -26,36 +20,43 @@ func GetPlayer(c *gin.Context) {
 		return
 	}
 
+	quality := c.Param("quality")
+
+	if quality != "full" && quality != "720p" {
+		quality = "full"
+	}
+
+	file := "recording.mp4"
+
+	if quality == "720p" {
+		file = "recording-720.mp4"
+	}
+
 	svc := s3.New(session.New(), &aws.Config{Region: aws.String(configuration.AWSRegion)})
 
-	c.HTML(http.StatusOK, "play/index.html", gin.H{
-		"Name": string(data),
-		"Data": &PlayerData{
-			FullURL: getSignedURL(svc, string(data), "recording.mp4"),
-			AlternateURL: getSignedURL(svc, string(data), "recording-720.mp4"),
-			DownloadURL: "/play/" + c.Param("key") + "/download/full",
-		},
-	})
-}
-
-func getSignedURL(svc *s3.S3, folder string, file string) string {
 	headObj := s3.HeadObjectInput{
 		Bucket: aws.String(configuration.Bucket),
-		Key: aws.String(folder + "/" + file),
+		Key: aws.String(string(data) + "/" + file),
 	}
 
 	result, _ := svc.HeadObject(&headObj)
 
 	if *result.ContentType != "video/mp4" {
-		return ""
+		c.Status(http.StatusNotFound)
+		return
 	}
 
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(configuration.Bucket),
-		Key: aws.String(folder + "/" + file),
+		Key: aws.String(string(data) + "/" + file),
 	})
+
+	q := req.HTTPRequest.URL.Query()
+	q.Add("response-content-disposition", "attachment; filename=recording.mp4")
+	q.Add("response-content-encoding", "video/mp4")
+	req.HTTPRequest.URL.RawQuery = q.Encode()
 
 	url, _ := req.Presign(12 * time.Hour)
 
-	return url
+	c.Redirect(http.StatusTemporaryRedirect, url)
 }

@@ -17,4 +17,5 @@ func Init(router *gin.Engine) {
 	}))
 
 	authenticatedRoutes.GET("/:key", GetPlayer)
+	authenticatedRoutes.GET("/:key/download/:quality", GetDownload)
 }
